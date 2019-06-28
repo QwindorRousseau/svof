@@ -11020,6 +11020,107 @@ dict = {
       end
     }
   },
+  elemental = {
+    physical = {
+      aspriority = 0,
+      spriority = 0,
+      unpauselater = false,
+      balanceful_act = true,
+      def = true,
+      undeffable = true,
+
+      isadvisable = function ()
+        return (((sys.deffing and defdefup[defs.mode].elemental and not defc.elemental) or (conf.keepup and defkeepup[defs.mode].elemental and not defc.elemental)) and not doingaction("waitingforelemental") and not codepaste.balanceful_defs_codepaste()) or false
+      end,
+
+      oncompleted = function ()
+        doaction(dict.waitingforelemental.waitingfor)
+      end,
+
+      alreadyhave = function ()
+        dict.waitingforelemental.waitingfor.oncompleted()
+      end,
+
+      actions = "prevail",
+      onstart = function ()
+      -- user commands catching needs this check
+        if not (bals.balance and bals.equilibrium) then return end
+
+#if skills.metamorphosis then
+        if defc.flame then send("relax flame", conf.commandecho) end
+#end
+        send("prevail", conf.commandecho)
+
+        if not conf.paused then
+          dict.elemental.physical.unpauselater = true
+          conf.paused = true; raiseEvent("svo config changed", "paused")
+          echo"\n" echof("Temporarily pausing for elemental lord.")
+        end
+      end
+    },
+    gone = {
+      oncompleted = function ()
+        defences.lost("elemental")
+        dict.extrusion.gone.oncompleted()
+        dict.tremorsense.gone.oncompleted()
+        dict.strata.gone.oncompleted()
+        signals.elemental:emit()
+      end,
+    }
+  },
+  waitingforelemental = {
+    spriority = 0,
+    waitingfor = {
+      customwait = 20,
+
+      oncompleted = function ()
+        defences.got("elemental")
+        dict.riding.gone.oncompleted()
+
+        -- strip class defences that don't stay through dragon
+        for def, deft in defs_data:iter() do
+          local skillset = deft.type
+          if skillset ~= "general" and skillset ~= "enchantment" and skillset ~= "dragoncraft" and skillset ~= "sculpting" and skillset ~= "pervasion" and skillset ~= "duress" and skillset ~= "ignition" and not deft.staysinelemental and defc[def] then
+            defences.lost(def)
+          end
+        end
+
+        -- lifevision, via artefact, has to be removed as well
+#if not skills.necromancy then
+        if defc.lifevision then defences.lost("lifevision") end
+#end
+
+        signals.elemental:emit()
+
+        if conf.paused and dict.elemental.physical.unpauselater then
+          conf.paused = false; raiseEvent("svo config changed", "paused")
+
+          echo"\n"
+          if math.random(1, 20) == 1 then
+            echof("EARTH, FIRE, WIND, WATER, ELEMENTAL LORD!")
+          else
+            echof("Obtained elemental lord, unpausing.")
+          end
+        end
+        dict.elemental.physical.unpauselater = false
+      end,
+
+      cancelled = function ()
+        signals.elemental:emit()
+        if conf.paused and dict.elemental.physical.unpauselater then
+          conf.paused = false; raiseEvent("svo config changed", "paused")
+          echo"\n" echof("Unpausing.")
+        end
+        dict.elemental.physical.unpauselater = false
+      end,
+
+      ontimeout = function()
+        dict.waitingforelemental.waitingfor.cancelled()
+      end,
+
+      onstart = function() end
+    }
+  },
   selfishness = {
     physical = {
       balanceful_act = true,
@@ -11093,6 +11194,11 @@ dict = {
       dragonform = function ()
         defences.got("dragonform")
         signals.dragonform:emit()
+      end,
+
+      elemental = function ()
+        defences.got("elemental")
+        signals.elemental:emit()
       end,
 
       hastring = function ()
@@ -15710,6 +15816,7 @@ affinity = {
     evadeblock = "evadeblock",
     evasion = false,
     extispicy = "extispicy",
+    extrusion = "extrusion",
     fangbarrier = "sileris",
     firefly = false,
     fireresist = "fireresist",
@@ -15815,6 +15922,7 @@ affinity = {
     stealth = "stealth",
     stonefist = "stonefist",
     stoneskin = "stoneskin",
+    strata = "strata",
     sulphur = "sulphur",
     swiftcurse = "swiftcurse",
     tekurastance = false,
@@ -15826,6 +15934,7 @@ affinity = {
     tin = "tin",
     toughness = "toughness",
     treewatch = "treewatch",
+    tremorsense = "tremorsense"
     truestare = "truestare",
     tune = "tune",
     twoartsstance = false,

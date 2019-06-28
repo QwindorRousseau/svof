@@ -416,6 +416,29 @@ defs_data = pl.OrderedMap {}
     off = {"You have not summoned your breath weapon.", "As the strain on your inflated lungs reaches extremity, you open your glistening, tooth-lined maw wide and rain a great tempest of venom down upon the ground below."},
     offr = {[[^As the strain on your inflated lungs reaches extremity, you open your glistening, tooth-lined maw wide and rain .+]], [[^Focusing your breath into a concentrated stream, you direct a blast of]], [[^Opening your great maw, you unleash an overpowering blast of flesh-searing lightning at .+, whose body goes rigid as s?he screams in agony\.$]], [[^Opening your dragon's mouth to its fullest, you blast .+ with your toxic wrath, damaging (?:her|his) very essence\.$]], [[^Opening your massive maw, you throw your head forward and blast wave after wave of deadly, all-consuming cold at .+\.$]], [[^Opening your maw, you force out a tremendous stream of acid, blasting the flesh from the very bones of .+\.$]], [[^Drawing a mighty breath to fill your lungs, you crane your neck backwards and send a screaming volley of \w+-infused vapour into the air\.$]], [[^You rear back your head, and with a keening roar unleash incandescent hell upon]], [[^With a roar of triumph, you unleash a cataclysm of crushing psi energy, laying waste to .+'s mind\.]], [[^Summoning a torpid cloud of \w+ deep within your belly, you expel your breath toward]] }})
 
+-- Elemental lord: everyone gets it
+  defs_data:set("elemental", { type = {"sculpting", "pervasion", "duress", "ignition"},
+    offline_defence = true,
+    invisibledef = true,
+    stays_on_death = true,
+    on = "Your elemental might has already overtaken your form.",
+    off = "Primal earth abandons you, your flawed physicality reasserting itself once more as you forsake your primordial form." })
+--Earth lord defenses  
+  defs_data:set("extrusion", { type = "sculpting",
+    specialskip = function() return gmcp.Char.Status.class ~= "earth Elemental Lord" end,
+    def = "You will restore your form with magma.",
+    on = "The magma within your form begins to churn.",
+    off = {"Magma explodes from beneath your outer strata, hardening in an instant to form a restored external coating.", "You are not able to extrude your magma to restore yourself so soon after doing it previously." }})
+  defs_data:set("tremorsense", { type = "sculpting",
+    specialskip = function() return gmcp.Char.Status.class ~= "earth Elemental Lord" end,
+    def = "You will know who walks upon the earth in your location.",
+    on = {"You begin to sense for those that would tread upon the hallowed earth.", "You are already focussing on the tremors caused by those that walk on land."},
+    off = {"You cease focussing on the tremors created by those that walk on land.", "You are not focussing on the tremors caused by those who walk on land."}})
+  defs_data:set("strata", { type = "sculpting",
+    specialskip = function() return gmcp.Char.Status.class ~= "earth Elemental Lord" end,
+    def = "You are protected by protective strata.",
+    on = {"Calling upon the power of Garash, you form protective strata to cover your entire form.", "You are already protected by a layer of strata."}})
+
 #if skills.necromancy then
   defs_data:set("deathsight", { type = "necromancy",
     staysindragon = true,
